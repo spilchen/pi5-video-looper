@@ -79,6 +79,15 @@ class VideoLooper:
         self._fgcolor = list(map(int, self._config.get('video_looper', 'fgcolor')
                                              .translate(str.maketrans('','', ','))
                                              .split()))
+        # Load ALSA configuration.
+        self._alsa_hw_vol_file = self._config.get('alsa', 'hw_vol_file') if self._config.has_option('alsa', 'hw_vol_file') else None
+        self._alsa_hw_vol_control = self._config.get('alsa', 'hw_vol_control') if self._config.has_option('alsa', 'hw_vol_control') else 'PCM'
+        hw_device = self._config.get('alsa', 'hw_device') if self._config.has_option('alsa', 'hw_device') else None
+        self._alsa_hw_device = tuple(map(int, hw_device.split(','))) if hw_device else None
+        self._alsa_hw_vol = None
+        # Load sound volume file configuration
+        self._sound_vol_file = self._config.get('omxplayer', 'sound_vol_file') if self._config.has_option('omxplayer', 'sound_vol_file') else None
+        self._sound_vol = None
         # Initialize pygame and display a blank screen.
         pygame.display.init()
         pygame.font.init()

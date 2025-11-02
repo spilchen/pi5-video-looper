@@ -72,7 +72,7 @@ autostart=true
 autorestart=true
 stdout_logfile=/var/log/video_looper.log
 redirect_stderr=true
-environment=PYTHONPATH=/usr/lib/python3/dist-packages:%(ENV_PYTHONPATH)s
+environment=PYTHONPATH="/usr/lib/python3/dist-packages"
 EOF
 
 # Copy configuration file and replace username placeholders
@@ -85,6 +85,14 @@ echo "==========================================="
 # Ensure log file exists and has correct permissions
 touch /var/log/video_looper.log
 chown $SUDO_USER:$SUDO_USER /var/log/video_looper.log
+
+# Allow video looper user to mount/unmount USB drives without password
+cat > /etc/sudoers.d/video_looper << EOF
+# Allow video looper user to mount/unmount USB drives
+$SUDO_USER ALL=(ALL) NOPASSWD: /bin/mount, /bin/umount, /bin/mkdir, /bin/rm
+$SUDO_USER ALL=(ALL) NOPASSWD: /usr/bin/mount, /usr/bin/umount, /usr/bin/mkdir, /usr/bin/rm
+EOF
+chmod 0440 /etc/sudoers.d/video_looper
 
 # Try to start GPIO daemon but don't fail if it doesn't work
 systemctl enable pigpiod || true

@@ -25,14 +25,17 @@ class MPVPlayer:
         If a duration is specified it will attempt to play the movie for that
         number of seconds.
         """
+        # Get the file path from the movie object.
+        movie_path = movie.target if hasattr(movie, 'target') else movie
+
         # Check if the file exists and is accessible.
-        if not os.path.exists(movie):
+        if not os.path.exists(movie_path):
             return False
 
         # Build up the mpv command line arguments.
         args = ['mpv']
         args.extend(self._extra_args)
-        args.append(movie)
+        args.append(movie_path)
 
         # Run mpv process and direct standard output to /dev/null.
         self._process = subprocess.Popen(args,
@@ -67,6 +70,11 @@ class MPVPlayer:
             self._process = None
 
     @staticmethod
-    def create_player(config):
-        """Create an instance of the video player."""
-        return MPVPlayer(config) 
+    def can_loop_count():
+        """Return true if the player can track loop count."""
+        return False
+
+
+def create_player(config, **kwargs):
+    """Create new video player based on mpv."""
+    return MPVPlayer(config) 
