@@ -23,10 +23,10 @@ class MPVPlayer:
         """Return list of supported file extensions."""
         return self._extensions
 
-    def play(self, movie, **kwargs):
+    def play(self, movie, loop=None, **kwargs):
         """Play the provided movie file, returning True if file was found/played.
-        If a duration is specified it will attempt to play the movie for that
-        number of seconds.
+        Loop parameter controls repetition: None = use movie.repeats, -1 = infinite,
+        >0 = loop that many times, 0 = play once (no loop).
         """
         # Get the file path from the movie object.
         movie_path = movie.target if hasattr(movie, 'target') else movie
@@ -44,6 +44,19 @@ class MPVPlayer:
         # Build up the mpv command line arguments.
         args = ['mpv']
         args.extend(self._extra_args)
+
+        # Handle loop parameter
+        if loop is None:
+            loop = movie.repeats if hasattr(movie, 'repeats') else 1
+
+        if loop <= -1:
+            args.append('--loop=inf')  # Infinite loop for this video
+        elif loop > 1:
+            # mpv's --loop=N means play 1 time + loop N additional times
+            # So we subtract 1 to get the desired number of total plays
+            args.append('--loop={0}'.format(loop - 1))
+        # loop == 0 or 1 means play once, no loop flag needed
+
         args.append(movie_path)
 
         # Run mpv process - stdout to /dev/null, but let stderr go to logs
