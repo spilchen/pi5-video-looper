@@ -2,6 +2,7 @@
 import os
 import subprocess
 import time
+import pygame
 
 class MPVPlayer:
     """Class to handle video playback using the mpv video player."""
@@ -15,6 +16,8 @@ class MPVPlayer:
                                .split(',')
         # Get extra arguments from config.
         self._extra_args = config.get('mpv', 'extra_args').split()
+        # Store pygame display state
+        self._pygame_active = False
 
     def supported_extensions(self):
         """Return list of supported file extensions."""
@@ -32,15 +35,20 @@ class MPVPlayer:
         if not os.path.exists(movie_path):
             return False
 
+        # Quit pygame display to give mpv exclusive access
+        if pygame.display.get_init():
+            pygame.display.quit()
+            self._pygame_active = True
+            time.sleep(0.1)  # Give display time to release
+
         # Build up the mpv command line arguments.
         args = ['mpv']
         args.extend(self._extra_args)
         args.append(movie_path)
 
-        # Run mpv process and direct standard output to /dev/null.
+        # Run mpv process - stdout to /dev/null, but let stderr go to logs
         self._process = subprocess.Popen(args,
-                                       stdout=open(os.devnull, 'wb'),
-                                       stderr=open(os.devnull, 'wb'))
+                                       stdout=open(os.devnull, 'wb'))
 
         # Wait for the process to start
         time.sleep(0.5)
@@ -68,6 +76,12 @@ class MPVPlayer:
             if self._process.poll() is None:
                 self._process.kill()
             self._process = None
+
+        # Reinitialize pygame display if we quit it earlier
+        if self._pygame_active and not pygame.display.get_init():
+            pygame.display.init()
+            pygame.mouse.set_visible(False)
+            self._pygame_active = False
 
     @staticmethod
     def can_loop_count():

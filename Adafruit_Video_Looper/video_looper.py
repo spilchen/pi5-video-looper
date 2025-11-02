@@ -428,6 +428,11 @@ class VideoLooper:
             
     def _handle_keyboard_shortcuts(self):
         while self._running:
+            # Check if pygame display is initialized before trying to get events
+            if not pygame.display.get_init():
+                time.sleep(0.1)
+                continue
+
             event = pygame.event.wait()
 
             if self._keyboard_control_disabled_while_playback and self._player.is_playing():

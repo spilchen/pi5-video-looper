@@ -63,6 +63,8 @@ deactivate
 EOF
 
 # Create service file for supervisor
+# Get the user ID for XDG_RUNTIME_DIR
+USER_ID=$(id -u $SUDO_USER)
 cat > /etc/supervisor/conf.d/video_looper.conf << EOF
 [program:video_looper]
 command=$VENV_PATH/bin/python3 -m Adafruit_Video_Looper.video_looper
@@ -72,7 +74,7 @@ autostart=true
 autorestart=true
 stdout_logfile=/var/log/video_looper.log
 redirect_stderr=true
-environment=PYTHONPATH="/usr/lib/python3/dist-packages"
+environment=PYTHONPATH="/usr/lib/python3/dist-packages",XDG_RUNTIME_DIR="/run/user/$USER_ID"
 EOF
 
 # Copy configuration file and replace username placeholders

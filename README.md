@@ -29,13 +29,26 @@ This version has been specifically modified to work with Raspberry Pi OS Bookwor
 
 ## Installation
 
-1. Clone this repository:
+1. **(Optional) Enable SSH for Remote Access:**
+
+   If you want to manage your Pi remotely, enable SSH before or after installation:
+   ```bash
+   sudo systemctl enable ssh
+   sudo systemctl start ssh
+   ```
+
+   You can then access your Pi remotely via:
+   ```bash
+   ssh username@hostname_or_ip
+   ```
+
+2. Clone this repository:
    ```bash
    git clone https://github.com/spilchen/pi5-video-looper.git
    cd pi5-video-looper
    ```
 
-2. Run the installer with sudo (it will automatically install for your user):
+3. Run the installer with sudo (it will automatically install for your user):
    ```bash
    sudo ./install.sh
    ```
@@ -47,6 +60,40 @@ This version has been specifically modified to work with Raspberry Pi OS Bookwor
 1. Copy video files to a USB drive or to `~/video` (in your home directory)
 2. Insert the USB drive into the Pi or ensure videos are in the local directory
 3. The system will automatically start playing videos in a loop
+
+### Service Management
+
+The video looper runs as a supervised service and will automatically start on boot. You can control it using the following commands:
+
+**Using supervisorctl:**
+```bash
+# Stop the video looper
+sudo supervisorctl stop video_looper
+
+# Start the video looper
+sudo supervisorctl start video_looper
+
+# Restart the video looper
+sudo supervisorctl restart video_looper
+
+# Check status
+sudo supervisorctl status video_looper
+
+# View logs
+sudo tail -f /var/log/video_looper.log
+```
+
+**Using the included scripts:**
+```bash
+# Disable autostart on boot
+sudo ./disable.sh
+
+# Re-enable autostart on boot
+sudo ./enable.sh
+
+# Reload configuration and restart
+sudo ./reload.sh
+```
 
 ### Keyboard Controls
 
