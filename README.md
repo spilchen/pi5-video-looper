@@ -31,20 +31,20 @@ This version has been specifically modified to work with Raspberry Pi OS Bookwor
 
 1. Clone this repository:
    ```bash
-   git clone https://github.com/adafruit/pi_video_looper.git
-   cd pi_video_looper
+   git clone https://github.com/spilchen/pi5-video-looper.git
+   cd pi5-video-looper
    ```
 
-2. Run the installer (use the `no_hello_video` flag to install without the hello_video player):
+2. Run the installer with sudo (it will automatically install for your user):
    ```bash
    sudo ./install.sh
-   # or
-   sudo ./install.sh no_hello_video
    ```
+
+   The script will detect your username automatically and set up the video looper for your account.
 
 ## Usage
 
-1. Copy video files to a USB drive or to `/home/pi/video`
+1. Copy video files to a USB drive or to `~/video` (in your home directory)
 2. Insert the USB drive into the Pi or ensure videos are in the local directory
 3. The system will automatically start playing videos in a loop
 

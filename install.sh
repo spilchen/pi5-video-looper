@@ -87,7 +87,17 @@ chown $SUDO_USER:$SUDO_USER /var/log/video_looper.log
 systemctl enable pigpiod || true
 systemctl start pigpiod || true
 
-# Restart supervisor
-systemctl restart supervisor
+# Make sure supervisor is running
+systemctl enable supervisor
+systemctl start supervisor
+
+# Tell supervisor to reload config and start the video looper
+supervisorctl reread
+supervisorctl update
+supervisorctl start video_looper
 
 echo "Finished!"
+echo ""
+echo "Video looper has been installed and started."
+echo "To check status: sudo supervisorctl status video_looper"
+echo "To view logs: sudo tail -f /var/log/video_looper.log"
