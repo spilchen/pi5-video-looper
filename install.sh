@@ -35,6 +35,7 @@ echo "=================================="
 
 # change the directory to the script location
 cd "$(dirname "$0")"
+REPO_DIR="$(pwd)"
 
 # Create required directories
 mkdir -p /mnt/usbdrive0
@@ -53,6 +54,7 @@ chown -R $SUDO_USER:$SUDO_USER $VENV_PATH
 
 # Install packages in virtual environment
 su - $SUDO_USER << EOF
+cd "$REPO_DIR"
 source $VENV_PATH/bin/activate
 python3 -m pip install --upgrade pip setuptools wheel
 # Try to install with GPIO support, fall back to basic install if it fails
