@@ -73,8 +73,9 @@ redirect_stderr=true
 environment=PYTHONPATH=/usr/lib/python3/dist-packages:%(ENV_PYTHONPATH)s
 EOF
 
-# Copy configuration file
+# Copy configuration file and replace username placeholders
 cp ./assets/video_looper.ini /boot/video_looper.ini
+sed -i "s|/home/pi|/home/$SUDO_USER|g" /boot/video_looper.ini
 
 echo "Configuring video_looper to run on start..."
 echo "==========================================="
