@@ -9,6 +9,15 @@ if [ "$(id -u)" != "0" ]; then
   exit 1
 fi
 
+# Make sure we can determine the actual user (must be run with sudo, not as root directly)
+if [ -z "$SUDO_USER" ]; then
+  echo "Error: Cannot determine the user. Please run with sudo, not as root directly."
+  echo "Try: sudo ./install.sh"
+  exit 1
+fi
+
+echo "Installing for user: $SUDO_USER"
+
 echo "Installing dependencies..."
 echo "=========================="
 # First update and install system packages
@@ -29,21 +38,21 @@ cd "$(dirname "$0")"
 
 # Create required directories
 mkdir -p /mnt/usbdrive0
-mkdir -p /home/KT/video
+mkdir -p /home/$SUDO_USER/video
 
 # Create group if it doesn't exist and set ownership
-groupadd -f KT
-usermod -a -G KT KT
-usermod -a -G gpio KT || true
-chown -R KT:KT /home/KT/video
+groupadd -f $SUDO_USER
+usermod -a -G $SUDO_USER $SUDO_USER
+usermod -a -G gpio $SUDO_USER || true
+chown -R $SUDO_USER:$SUDO_USER /home/$SUDO_USER/video
 
 # Create and activate virtual environment
-VENV_PATH="/home/KT/video_looper_env"
+VENV_PATH="/home/$SUDO_USER/video_looper_env"
 python3 -m venv $VENV_PATH
-chown -R KT:KT $VENV_PATH
+chown -R $SUDO_USER:$SUDO_USER $VENV_PATH
 
 # Install packages in virtual environment
-su - KT << EOF
+su - $SUDO_USER << EOF
 source $VENV_PATH/bin/activate
 python3 -m pip install --upgrade pip setuptools wheel
 # Try to install with GPIO support, fall back to basic install if it fails
@@ -55,8 +64,8 @@ EOF
 cat > /etc/supervisor/conf.d/video_looper.conf << EOF
 [program:video_looper]
 command=$VENV_PATH/bin/python3 -m Adafruit_Video_Looper.video_looper
-directory=/home/KT
-user=KT
+directory=/home/$SUDO_USER
+user=$SUDO_USER
 autostart=true
 autorestart=true
 stdout_logfile=/var/log/video_looper.log
@@ -72,7 +81,7 @@ echo "==========================================="
 
 # Ensure log file exists and has correct permissions
 touch /var/log/video_looper.log
-chown KT:KT /var/log/video_looper.log
+chown $SUDO_USER:$SUDO_USER /var/log/video_looper.log
 
 # Try to start GPIO daemon but don't fail if it doesn't work
 systemctl enable pigpiod || true
